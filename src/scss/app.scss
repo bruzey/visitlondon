@@ -1,5 +1,15 @@
-﻿$black: #FFFFFF;
+﻿$color: gray;
 
 body {
-    background-color: $black;
+    background-color: $color;
+}
+
+h1
+{
+    color: #FFFFFF;
+}
+
+h1:hover {
+    color: #000000;
+    transition: color 1s ease;
 }

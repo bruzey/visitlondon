@@ -1,3 +1,1 @@
-body {
-  background-color: #FFFFFF;
-}
+body{background-color:gray}h1{color:#FFFFFF}h1:hover{color:#000000;-webkit-transition:color 1s ease;transition:color 1s ease}
