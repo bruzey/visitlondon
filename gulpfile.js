@@ -13,6 +13,7 @@ var injectPartials = require('gulp-inject-partials');
 var minify = require('gulp-minify');
 var rename = require('gulp-rename');
 var cssmin = require('gulp-cssmin');
+var htmlmin = require('gulp-htmlmin');
 
 var SOURCEPATHS = {
     sassSource: 'src/scss/*.scss',
@@ -52,7 +53,8 @@ gulp.task("move-fonts", function () {
 });
 
 // PRODUCTION TASKS 
-gulp.task('scripts', function () {
+
+gulp.task('compressjs', function () {
     gulp.src(SOURCEPATHS.jsSource)
         .pipe(concat('main.js'))
         .pipe(browserify())
@@ -60,7 +62,7 @@ gulp.task('scripts', function () {
         .pipe(gulp.dest(APPPATH.js))
 });
 
-gulp.task('sass', function () {
+gulp.task('compresscss', function () {
     var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
     var sassFiles = gulp.src(SOURCEPATHS.sassSource)
                         .pipe(autoprefixer())
@@ -73,7 +75,32 @@ gulp.task('sass', function () {
             .pipe(gulp.dest(APPPATH.css));
 });
 
+gulp.task('minifyHtml', function () {
+    gulp.src(SOURCEPATHS.htmlSource)
+        .pipe(injectPartials())
+        .pipe(htmlmin({collapseWhitespace:true}))
+        .pipe(gulp.dest(APPPATH.root))
+});
+
 // END PRODUCTION TASKS
+
+gulp.task('scripts', function () {
+    gulp.src(SOURCEPATHS.jsSource)
+        .pipe(concat('main.js'))
+        .pipe(browserify())
+        .pipe(gulp.dest(APPPATH.js))
+});
+
+gulp.task('sass', function () {
+    var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
+    var sassFiles = gulp.src(SOURCEPATHS.sassSource)
+                        .pipe(autoprefixer())
+                        .pipe(sass({ outputStyle: 'extended' })).on('error', sass.logError);
+
+    return merge(sassFiles, bootstrapCSS)
+            .pipe(concat('app.css'))
+            .pipe(gulp.dest(APPPATH.css));
+});
 
 gulp.task('html', function () {
     gulp.src(SOURCEPATHS.htmlSource)
@@ -99,5 +126,7 @@ gulp.task('html', function () {
         gulp.watch([SOURCEPATHS.imgSource], ['images']);
         gulp.watch([SOURCEPATHS.htmlSource, SOURCEPATHS.htmlPartialSource], ['html']);
     });
+
+    gulp.task('production', ['compressjs','compresscss','minifyHtml']);
 
     gulp.task('default', ['watch']);
