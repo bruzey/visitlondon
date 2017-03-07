@@ -17,10 +17,11 @@ var htmlmin = require('gulp-htmlmin');
 
 var SOURCEPATHS = {
     sassSource: 'src/scss/*.scss',
+    sassApp: 'src/scss/app.scss',
     htmlSource: 'src/*.html',
     htmlPartialSource: 'src/partial/*.html',
     jsSource: 'src/js/*.js',
-    imgSource: 'src/img/*'
+    imgSource: 'src/img/*/*'
 };
 var APPPATH = {
     root: 'app',
@@ -47,11 +48,6 @@ gulp.task('images', function () {
                 .pipe(gulp.dest(APPPATH.img));
 });
 
-gulp.task("move-fonts", function () {
-    gulp.src('./node_modules/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2}')
-        .pipe(gulp.dest(APPPATH.fonts));
-});
-
 // PRODUCTION TASKS 
 
 gulp.task('compressjs', function () {
@@ -63,16 +59,14 @@ gulp.task('compressjs', function () {
 });
 
 gulp.task('compresscss', function () {
-    var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
+   
     var sassFiles = gulp.src(SOURCEPATHS.sassSource)
                         .pipe(autoprefixer())
-                        .pipe(sass({ outputStyle: 'extended' })).on('error', sass.logError);
-
-    return merge(sassFiles, bootstrapCSS)
-            .pipe(concat('app.css'))
-            .pipe(cssmin())
-            .pipe(rename({ suffix: '.min' }))
-            .pipe(gulp.dest(APPPATH.css));
+                        .pipe(sass({ outputStyle: 'extended' })).on('error', sass.logError)
+                        .pipe(concat('app.css'))
+                        .pipe(cssmin())
+                        .pipe(rename({ suffix: '.min' }))
+                        .pipe(gulp.dest(APPPATH.css));
 });
 
 gulp.task('minifyHtml', function () {
@@ -92,14 +86,11 @@ gulp.task('scripts', function () {
 });
 
 gulp.task('sass', function () {
-    var bootstrapCSS = gulp.src('./node_modules/bootstrap/dist/css/bootstrap.css');
-    var sassFiles = gulp.src(SOURCEPATHS.sassSource)
+     var sassFiles = gulp.src(SOURCEPATHS.sassApp)
                         .pipe(autoprefixer())
-                        .pipe(sass({ outputStyle: 'extended' })).on('error', sass.logError);
-
-    return merge(sassFiles, bootstrapCSS)
-            .pipe(concat('app.css'))
-            .pipe(gulp.dest(APPPATH.css));
+                        .pipe(sass({ outputStyle: 'extended' })).on('error', sass.logError)
+                        .pipe(concat('app.css'))
+                        .pipe(gulp.dest(APPPATH.css));
 });
 
 gulp.task('html', function () {
@@ -119,7 +110,7 @@ gulp.task('html', function () {
         });
     });
 
-    gulp.task('watch', ['serve', 'sass', 'scripts', 'move-fonts', 'images', 'html'], function () {
+    gulp.task('watch', ['serve', 'sass', 'scripts', 'images', 'html'], function () {
         gulp.watch([SOURCEPATHS.sassSource], ['sass']);
       //  gulp.watch([SOURCEPATHS.htmlSource], ['copy']);
         gulp.watch([SOURCEPATHS.jsSource], ['scripts']);
